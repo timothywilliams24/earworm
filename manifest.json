@@ -1,24 +1,20 @@
 {
-  "name": "Earworm Lyric Finder",
+  "name": "Earworm",
   "short_name": "Earworm",
-  "description": "Find that song stuck in your head using Genius lyrics.",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
-  "orientation": "portrait",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/3844/3844724.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
       "src": "https://cdn-icons-png.flaticon.com/512/3844/3844724.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
 }
