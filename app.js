@@ -5,45 +5,37 @@ const app = new Framework7({
 
 // 1. YOUR GENIUS CONFIG
 const ACCESS_TOKEN = 'xsNf9NMW_nLYcIXH90NhsuqsUZ4W3NOTwPA_sD0H0DMvZozNE44iel7fFgE-vgoo'; 
-const PROXY = 'https://corsproxy.io/?';  // Bypasses browser security blocks
-
 /* app.js */
-
-// 1. Better Proxy for GitHub Pages
-
-
-
 async function fetchFromGenius(query) {
   const container = document.getElementById('results-container');
-  container.innerHTML = '<li class="item-content"><div class="item-inner">Searching lyrics...</div></li>';
+  container.innerHTML = '<li class="item-content"><div class="item-inner">Connecting...</div></li>';
+
+  // THE NEW PROXY: AllOrigins
+  const targetUrl = `https://api.genius.com/search?q=${encodeURIComponent(query)}&access_token=${ACCESS_TOKEN}`;
+  const finalUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
 
   try {
-    // We encode the URI to ensure special characters don't break the link
-    const url = `${PROXY}${encodeURIComponent(`https://api.genius.com/search?q=${query}&access_token=${ACCESS_TOKEN}`)}`;
+    const response = await fetch(finalUrl);
+    const json = await response.json();
     
-    const response = await fetch(url);
-    
-    if (!response.ok) throw new Error('Network response was not ok');
-    
-    const data = await response.json();
+    // AllOrigins wraps the data in a "contents" string
+    const data = JSON.parse(json.contents);
     const hits = data.response.hits;
 
     container.innerHTML = ''; 
 
     if (hits.length === 0) {
-      container.innerHTML = '<li class="item-content"><div class="item-inner">No lyrics matched.</div></li>';
+      container.innerHTML = '<li class="item-content"><div class="item-inner">No lyrics found.</div></li>';
       return;
     }
 
     hits.forEach(hit => {
-      const song = hit.result;
-      renderSongCard(song.title, song.artist_names, song.song_art_image_thumbnail_url, song.url);
+      renderSongCard(hit.result.title, hit.result.artist_names, hit.result.song_art_image_thumbnail_url);
     });
 
   } catch (error) {
     console.error(error);
-    // If you see this message, the proxy or the token is the culprit
-    container.innerHTML = `<li class="item-content"><div class="item-inner" style="color:#ff375f">API Error: Check Token or Refresh</div></li>`;
+    container.innerHTML = '<li class="item-content"><div class="item-inner" style="color:#ff375f">Still blocked. Try again in 1 min.</div></li>';
   }
 }
 
