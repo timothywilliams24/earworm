@@ -5,7 +5,7 @@ const app = new Framework7({
 
 // 1. YOUR GENIUS CONFIG
 const ACCESS_TOKEN = 'xsNf9NMW_nLYcIXH90NhsuqsUZ4W3NOTwPA_sD0H0DMvZozNE44iel7fFgE-vgoo'; 
-const PROXY = 'https://corsproxy.io/?'; // Bypasses browser security blocks
+const PROXY = 'https://api.allorigins.win/raw?url='; // Bypasses browser security blocks
 
 // 2. Initialize Searchbar with customSearch enabled
 const searchbar = app.searchbar.create({
