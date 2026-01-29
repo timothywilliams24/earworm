@@ -5,7 +5,47 @@ const app = new Framework7({
 
 // 1. YOUR GENIUS CONFIG
 const ACCESS_TOKEN = 'xsNf9NMW_nLYcIXH90NhsuqsUZ4W3NOTwPA_sD0H0DMvZozNE44iel7fFgE-vgoo'; 
-const PROXY = 'https://api.allorigins.win/raw?url='; // Bypasses browser security blocks
+const PROXY = 'https://corsproxy.io/?';  // Bypasses browser security blocks
+
+/* app.js */
+
+// 1. Better Proxy for GitHub Pages
+
+
+
+async function fetchFromGenius(query) {
+  const container = document.getElementById('results-container');
+  container.innerHTML = '<li class="item-content"><div class="item-inner">Searching lyrics...</div></li>';
+
+  try {
+    // We encode the URI to ensure special characters don't break the link
+    const url = `${PROXY}${encodeURIComponent(`https://api.genius.com/search?q=${query}&access_token=${ACCESS_TOKEN}`)}`;
+    
+    const response = await fetch(url);
+    
+    if (!response.ok) throw new Error('Network response was not ok');
+    
+    const data = await response.json();
+    const hits = data.response.hits;
+
+    container.innerHTML = ''; 
+
+    if (hits.length === 0) {
+      container.innerHTML = '<li class="item-content"><div class="item-inner">No lyrics matched.</div></li>';
+      return;
+    }
+
+    hits.forEach(hit => {
+      const song = hit.result;
+      renderSongCard(song.title, song.artist_names, song.song_art_image_thumbnail_url, song.url);
+    });
+
+  } catch (error) {
+    console.error(error);
+    // If you see this message, the proxy or the token is the culprit
+    container.innerHTML = `<li class="item-content"><div class="item-inner" style="color:#ff375f">API Error: Check Token or Refresh</div></li>`;
+  }
+}
 
 // 2. Initialize Searchbar with customSearch enabled
 const searchbar = app.searchbar.create({
