@@ -1,0 +1,52 @@
+:root {
+  --f7-theme-color: #ff375f;
+}
+
+body, .page, .view {
+  background: #000 !important;
+  color: #fff;
+}
+
+/* Centering Logic */
+.search-hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 45vh; 
+  padding: 0 24px;
+}
+
+.hero-title {
+  font-size: 40px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.hero-subtitle {
+  color: #8e8e93;
+  margin-bottom: 30px;
+}
+
+/* THE UI FIX: Stop the squashing */
+.searchbar-custom {
+  width: 100% !important; /* Force full width */
+  max-width: 500px;
+  background: transparent !important;
+  flex-shrink: 0; /* Prevent collapsing */
+}
+
+.searchbar-custom .searchbar-inner {
+  background: rgba(28, 28, 30, 0.8) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  height: 50px;
+}
+
+.song-card {
+  background: #1c1c1e !important;
+  margin-bottom: 12px;
+  border-radius: 12px;
+}
