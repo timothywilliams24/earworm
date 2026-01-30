@@ -4,49 +4,62 @@ const app = new Framework7({
   theme: 'ios',
 });
 
+/* app.js - The "Unstoppable" Edition */
+
 // 1. CONFIG
 const ACCESS_TOKEN = 'xsNf9NMW_nLYcIXH90NhsuqsUZ4W3NOTwPA_sD0H0DMvZozNE44iel7fFgE-vgoo';
-const PROXY = 'https://api.allorigins.win/get?url='; // The most reliable for GitHub Pages
 
-// 2. SEARCHBAR SETUP
-const searchbar = app.searchbar.create({
-  el: '.searchbar',
-  customSearch: true, 
-  on: {
-    search(sb, query) {
-      if(query.length > 2) {
-        fetchFromGenius(query);
-      }
-    },
-    clear() {
-      document.getElementById('results-container').innerHTML = '';
-    }
+// 2. THE ROTATOR LOGIC
+async function fetchWithFailover(query) {
+  const targetUrl = `https://api.genius.com/search?q=${encodeURIComponent(query)}&access_token=${ACCESS_TOKEN}`;
+  
+  // Strategy 1: AllOrigins (Returns JSON inside "contents")
+  try {
+    console.log("Trying Proxy 1 (AllOrigins)...");
+    const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}&timestamp=${Date.now()}`); // Timestamp prevents caching
+    const json = await res.json();
+    const data = JSON.parse(json.contents); // Unpack the wrapper
+    return data.response.hits;
+  } catch (e) {
+    console.warn("Proxy 1 failed, switching to Proxy 2...");
   }
-});
 
-// 3. THE CORE SEARCH LOGIC
+  // Strategy 2: CorsProxy.io (Direct Pass-through)
+  try {
+    console.log("Trying Proxy 2 (CorsProxy)...");
+    const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`);
+    const data = await res.json();
+    return data.response.hits;
+  } catch (e) {
+    console.warn("Proxy 2 failed, switching to Proxy 3...");
+  }
+
+  // Strategy 3: ThingProxy (Backup)
+  try {
+    console.log("Trying Proxy 3 (ThingProxy)...");
+    const res = await fetch(`https://thingproxy.freeboard.io/fetch/${targetUrl}`);
+    const data = await res.json();
+    return data.response.hits;
+  } catch (e) {
+    throw new Error("All proxies exhausted.");
+  }
+}
+
+// 3. YOUR MAIN FUNCTION
 async function fetchFromGenius(query) {
   const container = document.getElementById('results-container');
-  container.innerHTML = '<li class="item-content"><div class="item-inner">Scouring lyrics...</div></li>';
-
-  // INNOVATION: Wrap query in quotes for better phrase matching in lyrics
-  const refinedQuery = `"${query}"`; 
-  const targetUrl = `https://api.genius.com/search?q=${encodeURIComponent(refinedQuery)}&access_token=${ACCESS_TOKEN}`;
-  const finalUrl = `${PROXY}${encodeURIComponent(targetUrl)}`;
+  container.innerHTML = '<li class="item-content"><div class="item-inner">Scouring the web...</div></li>';
 
   try {
-    const response = await fetch(finalUrl);
-    const json = await response.json();
-    
-    // AllOrigins wraps the data in a "contents" string
-    const data = JSON.parse(json.contents);
-    const hits = data.response.hits;
+    // INNOVATION: Search for "Query" in quotes for better matches
+    const refinedQuery = `"${query}"`; 
+    const hits = await fetchWithFailover(refinedQuery); // Calls our new Rotator
 
     container.innerHTML = ''; 
 
-    if (hits.length === 0) {
-      // Fallback to loose search if exact match fails
-      return retryLooseSearch(query);
+    if (!hits || hits.length === 0) {
+      container.innerHTML = '<li class="item-content"><div class="item-inner">No lyrics matched.</div></li>';
+      return;
     }
 
     hits.forEach(hit => {
@@ -55,32 +68,11 @@ async function fetchFromGenius(query) {
     });
 
   } catch (error) {
-    console.error(error);
-    container.innerHTML = '<li class="item-content"><div class="item-inner" style="color:#ff375f">Connection lost. Check Proxy.</div></li>';
+    console.error("Final Error:", error);
+    container.innerHTML = '<li class="item-content"><div class="item-inner" style="color:#ff375f">Network busy. Try again in 10s.</div></li>';
   }
 }
 
-// 4. FALLBACK SEARCH
-async function retryLooseSearch(query) {
-    const container = document.getElementById('results-container');
-    const targetUrl = `https://api.genius.com/search?q=${encodeURIComponent(query)}&access_token=${ACCESS_TOKEN}`;
-    const finalUrl = `${PROXY}${encodeURIComponent(targetUrl)}`;
-    
-    try {
-        const response = await fetch(finalUrl);
-        const json = await response.json();
-        const data = JSON.parse(json.contents);
-        const hits = data.response.hits;
-        
-        if (hits.length > 0) {
-            hits.forEach(hit => renderSongCard(hit.result.title, hit.result.artist_names, hit.result.song_art_image_thumbnail_url));
-        } else {
-            container.innerHTML = '<li class="item-content"><div class="item-inner">No lyrics matched.</div></li>';
-        }
-    } catch (e) {
-        container.innerHTML = '<li class="item-content"><div class="item-inner">Error in fallback search.</div></li>';
-    }
-}
 
 // 5. THE UI RENDERER (Spotify Redirect)
 function renderSongCard(title, artist, thumb) {
