@@ -73,9 +73,6 @@ function renderSongCard(title, artist, thumb) {
         <div class="item-inner">
           <div class="item-title">${title}</div>
           <div class="item-subtitle" style="color:#8e8e93;">${artist}</div>
-          <div class="item-after">
-             <i class="f7-icons" style="font-size: 24px; color: #1DB954;">play_circle_fill</i>
-          </div>
         </div>
       </a>
     </li>`;
