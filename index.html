@@ -23,10 +23,10 @@
             <h1 class="hero-title">Earworm</h1>
             <p class="hero-subtitle">Find that song stuck in your head</p>
             
-            <form class="searchbar searchbar-custom">
+            <form class="searchbar searchbar-custom" onsubmit="event.preventDefault(); return false;">
               <div class="searchbar-inner">
                 <div class="searchbar-input-wrap">
-                  <input type="search" placeholder="Enter lyrics...">
+                  <input type="search" placeholder="Enter lyrics..." enterkeyhint="search">
                   <i class="searchbar-icon"></i>
                 </div>
               </div>
